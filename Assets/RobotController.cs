@@ -42,7 +42,7 @@ public class RobotController : MonoBehaviour {
 			Vector3 goal_pos = goal.getLocation ();
 			float goal_dist = getDistance (goal);
 
-			float exp_shift = (float)1.1;
+			float exp_shift = (float)1.3;
 			float goal_scalar = (float)1 + (1 / (goal_dist - exp_shift));
 			goal_scalar = 1;
 
@@ -63,11 +63,14 @@ public class RobotController : MonoBehaviour {
 				float cur_scalar = 0;
 
 				if (cur_dist < cur_rep.getRadius ()) {
-					cur_scalar = (1 / (cur_dist - exp_shift));
-					speed = cur_scalar;
+					cur_scalar = Mathf.Abs((1 / (float)Mathf.Pow((cur_dist - exp_shift), (float)1.2)));
 				} else {
 					speed = def_speed;
 					cur_scalar = 0;
+				}
+
+				if (cur_dist < cur_rep.getRadius () * (float)0.45) {
+					speed = (cur_scalar * 25);
 				}
 
 				move_force += cur_scalar * ((my_pos - cur_pos) / vec_length (my_pos - cur_pos));
