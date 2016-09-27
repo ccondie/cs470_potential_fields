@@ -19,7 +19,9 @@ public class RobotController : MonoBehaviour {
 	}
 
 
-
+	float vec_length(Vector3 v) {
+		return Mathf.Sqrt (Mathf.Pow (v [0], 2) + Mathf.Pow (v [1], 2) + Mathf.Pow (v [1], 2));
+	}
 	// Update is called once per frame
 	void Update () {
 
@@ -30,6 +32,43 @@ public class RobotController : MonoBehaviour {
 		switch (runtype) {
 		case RunType.one:
 			//For Part 1 of the lab
+			List<Field> att_fields = getFieldofType (1);
+			List<Field> rep_fields = getFieldofType (2);
+
+			Vector3 my_pos = myLocation ();
+
+			Field goal = att_fields [0];
+			Vector3 goal_pos = goal.getLocation ();
+			float goal_dist = getDistance (goal);
+
+			float exp_shift = (float)1;
+			float goal_scalar = (float)1 + (1 / (goal_dist - exp_shift));
+
+			Vector3 move_force = goal_scalar * ((goal_pos - my_pos) / vec_length (goal_pos - my_pos));
+
+			float counter_speed_radius = goal.getRadius () / 2;
+			if (goal_dist < goal.getRadius ()) {
+				move_force = move_force - (counter_speed_radius / goal_dist) * myVelocity ();
+			}
+
+
+			// apply the influence of the repulsive fields, by unit vector and scalar
+			for (int i = 0; i < rep_fields.Count; i++) {
+				Field cur_rep = rep_fields [i];
+				Vector3 cur_pos = cur_rep.getLocation ();
+				float cur_dist = getDistance (cur_rep);
+				float cur_scalar = 0;
+
+				if (cur_dist < cur_rep.getRadius ()) {
+					cur_scalar = (1 / (cur_dist - exp_shift));
+				} else {
+					cur_scalar = 0;
+				}
+
+				move_force += cur_scalar * ((my_pos - cur_pos) / vec_length (my_pos - cur_pos));
+			}
+			move (move_force);
+
 
 			break;
 		case RunType.two:
@@ -102,8 +141,15 @@ public class RobotController : MonoBehaviour {
 
 
 	public Vector3 myLocation()
-		{return this.transform.position;
-		}
+	{
+		return this.transform.position;
+	}
+
+	public Vector3 myVelocity(){
+		return this.GetComponent<Rigidbody> ().velocity;
+	}
+
+
 
 
 	//Get all Fields.
