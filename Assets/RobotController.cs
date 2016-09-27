@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class RobotController : MonoBehaviour {
 
 	public float speed;
+	public float def_speed = 50;
 
 	//Used to keep track of "forward direction" in manual control
 	float rotationAngle = 0;
@@ -20,7 +21,7 @@ public class RobotController : MonoBehaviour {
 
 
 	float vec_length(Vector3 v) {
-		return Mathf.Sqrt (Mathf.Pow (v [0], 2) + Mathf.Pow (v [1], 2) + Mathf.Pow (v [1], 2));
+		return Mathf.Sqrt (Mathf.Pow (v [0], 2) + Mathf.Pow (v [1], 2) + Mathf.Pow (v [2], 2));
 	}
 	// Update is called once per frame
 	void Update () {
@@ -41,12 +42,14 @@ public class RobotController : MonoBehaviour {
 			Vector3 goal_pos = goal.getLocation ();
 			float goal_dist = getDistance (goal);
 
-			float exp_shift = (float)1;
+			float exp_shift = (float)1.1;
 			float goal_scalar = (float)1 + (1 / (goal_dist - exp_shift));
+			goal_scalar = 1;
 
 			Vector3 move_force = goal_scalar * ((goal_pos - my_pos) / vec_length (goal_pos - my_pos));
 
-			float counter_speed_radius = goal.getRadius () / 2;
+			// counter the robot's velocity based on how close to the goal it is
+			float counter_speed_radius = goal.getRadius () * (float)0.1;
 			if (goal_dist < goal.getRadius ()) {
 				move_force = move_force - (counter_speed_radius / goal_dist) * myVelocity ();
 			}
@@ -61,7 +64,9 @@ public class RobotController : MonoBehaviour {
 
 				if (cur_dist < cur_rep.getRadius ()) {
 					cur_scalar = (1 / (cur_dist - exp_shift));
+					speed = cur_scalar;
 				} else {
+					speed = def_speed;
 					cur_scalar = 0;
 				}
 
