@@ -14,9 +14,35 @@ public class RobotController : MonoBehaviour {
 	public RunType runtype; 
 	public enum RunType{one, two, three};
 
+	List<Field> rand_fields = new List<Field>();
+	List<Field> att_fields = new List<Field>();
+	List<Field> rep_fields = new List<Field> ();
+
 	// Use this for initialization
 	void Start () {
 		followArrow = GameObject.FindObjectOfType<ObjectFollow> ().gameObject;
+		att_fields = getFieldofType (1);
+		rep_fields = getFieldofType (2);
+		rand_fields = getFieldofType (3);
+
+		foreach (Field rand_field in rand_fields) {
+			float field_radius = rand_field.getRadius ();
+			float dist_from_center = Mathf.Sqrt (field_radius * field_radius / 2);
+			for (float x = -dist_from_center; x < dist_from_center; x += 7) {
+				for (float y = -dist_from_center; y < dist_from_center; y += 7) {
+					Debug.Log (x + ' ' + y);
+
+					// seed the random field with random vectors
+					Vector3 location = new Vector3(rand_field.getLocation().x + x, 0, rand_field.getLocation().y + y);
+					float vec_x = Random.Range (-1, 1);
+					float vec_y = Random.Range (-1, 1);
+					Vector3 vector = new Vector3 (vec_x, 0, vec_y);
+
+					rand_field.sub_fields.Add (new SubField (location, vector));
+				}
+			}
+		}
+
 	}
 
 
@@ -33,9 +59,6 @@ public class RobotController : MonoBehaviour {
 		switch (runtype) {
 		case RunType.one:
 			//For Part 1 of the lab
-			List<Field> att_fields = getFieldofType (1);
-			List<Field> rep_fields = getFieldofType (2);
-
 			Vector3 my_pos = myLocation ();
 
 			Field goal = att_fields [0];
@@ -63,7 +86,7 @@ public class RobotController : MonoBehaviour {
 				float cur_scalar = 0;
 
 				if (cur_dist < cur_rep.getRadius ()) {
-					cur_scalar = Mathf.Abs((1 / (float)Mathf.Pow((cur_dist - exp_shift), (float)1.2)));
+					cur_scalar = Mathf.Abs ((1 / (float)Mathf.Pow ((cur_dist - exp_shift), (float)1.2)));
 				} else {
 					speed = def_speed;
 					cur_scalar = 0;
@@ -75,6 +98,18 @@ public class RobotController : MonoBehaviour {
 
 				move_force += cur_scalar * ((my_pos - cur_pos) / vec_length (my_pos - cur_pos));
 			}
+
+			// handle the influence of a random fields
+			int rand_vector_sample = 2;
+			foreach (Field rand_field in rand_fields) {
+				if (getDistance (rand_field) < rand_field.getRadius ()) {
+					List<Vector3> influences = closest_sub_fields (rand_field.sub_fields, rand_vector_sample);
+					foreach (Vector3 push in influences) {
+						move_force += move_force + (float)0.5 * push;
+					}
+				}
+			}
+				
 			move (move_force);
 
 
@@ -96,6 +131,29 @@ public class RobotController : MonoBehaviour {
 		move (toMove);
 
 
+	}
+
+	public List<Vector3> closest_sub_fields(List<SubField> subs, int sampleSize){
+		SortedDictionary<float, SubField> distances = new SortedDictionary<float, SubField> ();
+		List<Vector3> return_me = new List<Vector3> ();
+
+		foreach (SubField sub in subs) {
+			distances.Add(Vector3.Distance(sub.getLocation(), myLocation()), sub);
+		}
+
+		int count = 0;
+		foreach (KeyValuePair<float,SubField> entry in distances) {
+			if (count < sampleSize) {
+				return_me.Add(entry.Value.getVector());
+			}
+		}
+					/*
+		for (int i = 0; i < sampleSize; i++) {
+			float key = distances.Keys [i];
+			return_me.Add(distances[key].getVector());
+		}*/
+
+		return return_me;
 	}
 
 
@@ -202,6 +260,7 @@ public class RobotController : MonoBehaviour {
 		List<Field> myList = new List<Field> ();
 		foreach (Field f in GameObject.FindObjectsOfType<Field> ()) {
 			if (f.getFieldType() == n) {
+				Debug.Log (f.getFieldType());
 				myList.Add (f);			
 			}
 		}

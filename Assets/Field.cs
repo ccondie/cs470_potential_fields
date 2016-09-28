@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
 
 public class Field : MonoBehaviour {
 
@@ -7,6 +9,8 @@ public class Field : MonoBehaviour {
 	public float radius;
 	public bool showField;
 	private Vector3 location;
+
+	public List<SubField> sub_fields = new List<SubField> ();
 
 	// Use this for initialization
 	void Start () {

@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/ObstacleCourse.unity
+- path: Assets/test4.unity
   isLoaded: 1
   isActive: 1

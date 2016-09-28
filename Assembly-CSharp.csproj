@@ -48,6 +48,7 @@
      <Compile Include="Assets\Field.cs" />
      <Compile Include="Assets\ObjectFollow.cs" />
      <Compile Include="Assets\RobotController.cs" />
+     <Compile Include="Assets\SubField.cs" />
      <Compile Include="Assets\Wallcounter.cs" />
      <Compile Include="Assets\cameraController.cs" />
      <None Include="Assets\Readme.txt" />
