@@ -30,7 +30,6 @@ public class RobotController : MonoBehaviour {
 			float dist_from_center = Mathf.Sqrt (field_radius * field_radius / 2);
 			for (float x = -dist_from_center; x < dist_from_center; x += 7) {
 				for (float y = -dist_from_center; y < dist_from_center; y += 7) {
-					Debug.Log (x + ' ' + y);
 
 					// seed the random field with random vectors
 					Vector3 location = new Vector3(rand_field.getLocation().x + x, 0, rand_field.getLocation().y + y);
@@ -260,7 +259,6 @@ public class RobotController : MonoBehaviour {
 		List<Field> myList = new List<Field> ();
 		foreach (Field f in GameObject.FindObjectsOfType<Field> ()) {
 			if (f.getFieldType() == n) {
-				Debug.Log (f.getFieldType());
 				myList.Add (f);			
 			}
 		}
